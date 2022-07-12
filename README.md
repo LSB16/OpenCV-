@@ -34,6 +34,9 @@ cv2.destroyAllWindows()
   - arg2(img): 윈도우 창에 표시할 이미지
   - arg3(showCrossHair=True): 선택 영역 중심에 십자 모양 표시 여부
   - arg4(fromCenter=False): 마우스 시작 지점을 영역의 중심으로 지정
+
+![selectROI](./winimage/20220712_153519.png)
+
 ---
 + **cv2.grabCut(arg1, arg2, arg3, arg4, arg5, arg6)**
   - arg1(img): 입력 영상, 8비트 3채널
@@ -47,6 +50,8 @@ cv2.destroyAllWindows()
 grabCut 함수를 거친 mask 행렬에는 0,1,2,3 값을 지닌 원소들로 채워지는데 0,2는 배경, 1,3은 객체를 의미한다.
 
 numpy.where 함수를 사용해서 배경 영역을 0, 객체 영역을 1로 설정한 mask2 행렬을 생성한다.
+
+![grabCut](./winimage/20220712_154822.png)
 
 ---
 + **np.where(arg1,arg2,arg3)**
