@@ -6,7 +6,29 @@
 2. 객체 부분과 배경 부분을 마우스로 지정해서 입력
 
 이번 테스트는 1번 방법에 대한 코드이다.
+```python
+import numpy as np
+import cv2
 
+src = cv2.imread('./source/dog.bmp')
+
+if src is None: raise Exception('Image load failed')
+
+rc = cv2.selectROI(src, True, False)                                        # 마우스 드래그로 roi 영역을 설정
+print(rc)
+
+mask = np.zeros(src.shape[:2], np.uint8)
+
+cv2.grabCut(src, mask, rc, None, None, 5, cv2.GC_INIT_WITH_RECT)
+
+mask2 = np.where((mask == 0) | (mask == 2), 0, 1).astype(np.uint8)
+
+dst = src * mask2[:, :, np.newaxis]
+
+cv2.imshow('dst', dst)
+cv2. waitKey()
+cv2.destroyAllWindows()
+```
 + cv2.selectROI(arg1, arg2, arg3, arg4)
   - arg1(winname): 윈도우 창 이름
   - arg2(img): 윈도우 창에 표시할 이미지
@@ -26,18 +48,4 @@
   - arg2(x): 조건문이 True일때 치환할 값
   - arg3(y): 조건문이 False일때 치환할 값
 
-```python
-import numpy as np
 
-array1 = np.arange(5,15)
-print(array1)                      # [5 6 7 8 9 10 11 12 13 14]
-array2 = np.where(array1 > 10)[0]  
-print(array2)                      # (array([6, 7, 8, 9], dtype=int64),) 튜플 형식 반환
-
-array2Da = np.array([[15,8,12],[11,7,3]]) 
-print(np.where(array2Da > 10, array2Da, 10))    # 10미만 원소는 10으로 치환, 10 이상 원소는 원래 값 유지
-'''
-[[15 10 12]
- [11 10 10]]
-'''
-```
