@@ -10,11 +10,11 @@ print(rc)
 
 mask = np.zeros(src.shape[:2], np.uint8)
 
-cv2.grabCut(src, mask, rc, None, None, 5, cv2.GC_INIT_WITH_RECT)
+cv2.grabCut(src, mask, rc, None, None, 1, cv2.GC_INIT_WITH_RECT)            # mask 값이 변경된다.
 
 mask2 = np.where((mask == 0) | (mask == 2), 0, 1).astype(np.uint8)
 
-dst = src * mask2[:, :, np.newaxis]
+dst = src * mask2[:,:,np.newaxis]                                           # src는 컬러 영상이므로 차원을 맞춰줌
 
 cv2.imshow('dst', dst)
 cv2. waitKey()
