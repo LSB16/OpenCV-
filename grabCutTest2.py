@@ -11,7 +11,7 @@ fgdModel = np.zeros((1,65), np.float64)
 
 rc = cv2.selectROI(src)
 
-cv2.grabCut(src, mask, rc, None, None, 1, cv2.GC_INIT_WITH_RECT)
+cv2.grabCut(src, mask, rc, bgdModel, fgdModel, 1, cv2.GC_INIT_WITH_RECT)
 
 mask2 = np.where((mask == 0) | (mask == 2), 0, 1).astype(np.uint8)
 dst = src * mask2[:,:, np.newaxis]
@@ -45,7 +45,7 @@ cv2.setMouseCallback('dst', onMouse)
 while True:
     key = cv2.waitKey()
     if key == 13:
-        cv2.grabCut(src, mask, rc, None, None, 1, cv2.GC_INIT_WITH_MASK)
+        cv2.grabCut(src, mask, rc, bgdModel, fgdModel, 1, cv2.GC_INIT_WITH_MASK)
         mask2 = np.where((mask== 0) | (mask == 2) , 0, 1).astype(np.uint8)
         dst = src * mask2[:,:, np.newaxis]
         cv2.imshow('dst',dst)
