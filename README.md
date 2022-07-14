@@ -49,6 +49,8 @@ cv2.destroyAllWindows()
 
 grabCut 함수를 거친 mask 행렬에는 0,1,2,3 값을 지닌 원소들로 채워지는데 0,2는 배경, 1,3은 객체를 의미한다.
 
+참고로 0은 명백한 배경, 1은 명백한 객체, 2는 배경일 수도 있는 영역, 3은 객체일 수도 있는 영역을 의미한다.
+
 numpy.where 함수를 사용해서 배경 영역을 0, 객체 영역을 1로 설정한 mask2 행렬을 생성한다.
 
 ![grabCut](./winimage/20220712_154822.png)
@@ -59,4 +61,81 @@ numpy.where 함수를 사용해서 배경 영역을 0, 객체 영역을 1로 설
   - arg2(x): 조건문이 True일때 치환할 값
   - arg3(y): 조건문이 False일때 치환할 값
 
+---
 
+아래 테스트는 2번 방법에 대한 코드이다. [selectROI로 일차적으로 그랩컷을 수행한 후 마우스 이벤트 함수를 통해 추가적으로 그랩컷 수행]
+```python
+import numpy as np
+import cv2
+
+src = cv2.imread('./source/son.jpg')
+
+if src is None: raise Exception('image load failed')
+
+mask = np.zeros(src.shape[:2], np.uint8)
+bgdModel = np.zeros((1,65), np.float64)
+fgdModel = np.zeros((1,65), np.float64)
+
+rc = cv2.selectROI(src)
+
+cv2.grabCut(src, mask, rc, bgdModel, fgdModel, 1, cv2.GC_INIT_WITH_RECT)
+
+mask2 = np.where((mask == 0) | (mask == 2), 0, 1).astype(np.uint8)
+dst = src * mask2[:,:, np.newaxis]
+ 
+cv2.imshow('dst',dst)
+
+def onMouse(event, x, y, flags, param):                     # 마우스 왼쪽 버튼 드래그 --> 객체, 오른쪽 --> 배경
+    if event == cv2.EVENT_LBUTTONDOWN:
+        cv2.circle(dst, (x,y), 3, (255,0,0), cv2.FILLED)
+        cv2.circle(mask, (x,y), 3, cv2.GC_FGD, cv2.FILLED)
+        cv2.imshow('dst',dst)
+    
+    elif event == cv2.EVENT_RBUTTONDOWN:
+        cv2.circle(dst, (x,y), 3, (0,0,255),cv2.FILLED)
+        cv2.circle(mask, (x,y), 3, cv2.GC_BGD, cv2.FILLED)
+        cv2.imshow('dst',dst)
+
+    elif event == cv2.EVENT_MOUSEMOVE:
+        if flags & cv2.EVENT_FLAG_LBUTTON:
+            cv2.circle(dst, (x,y), 3, (255,0,0), cv2.FILLED)
+            cv2.circle(mask, (x,y), 3, cv2.GC_FGD, cv2.FILLED)
+            cv2.imshow('dst',dst)
+
+        if flags & cv2.EVENT_FLAG_RBUTTON:
+            cv2.circle(dst, (x,y), 3, (0,0,255), cv2.FILLED)
+            cv2.circle(mask, (x,y), 3, cv2.GC_BGD, cv2.FILLED)
+            cv2.imshow('dst',dst)    
+
+cv2.setMouseCallback('dst', onMouse)
+
+while True:
+    key = cv2.waitKey()
+    if key == 13:
+        cv2.grabCut(src, mask, rc, bgdModel, fgdModel, 1, cv2.GC_INIT_WITH_MASK)
+        mask2 = np.where((mask== 0) | (mask == 2) , 0, 1).astype(np.uint8)
+        dst = src * mask2[:,:, np.newaxis]
+        cv2.imshow('dst',dst)
+
+    elif key == 27: break
+
+cv2.destroyAllWindows()
+```
+
+추가로 사용한 기능은 arg4, arg5에 기술한 bgdModel, fgdModel과 arg7의 mode 인자에 기술한 cv2.GC_INIT_WITH_MASK 이다.
+
+bgdModel, fgdModel를 지정해주면 재귀적인 방식으로 더욱 최적의 결과를 도출해낼 수 있음.
+
+파이썬 기준으로 1행 65열 64비트 실수형 넘파이 행렬값을 사용한다.
+
+cv2.GC_INIT_WITH_MASK 인자는 사용자가 설정한 mask를 기반으로 그랩컷을 수행할 때 사용한다. 위 코드에서는 마우스 이벤트가 발생한 위치의 mask 원소 값을 변경해서 사용한다.
+
+![grabCut2](./winimage/20220712_211555.png)
+
+selectROI 함수를 사용하여 그랩컷
+
+![grabCut2_1](./winimage/20220712_211544.png) 
+
+사용자가 마우스로 객체, 배경 영역을 표시한 마스크로 그랩컷
+
+---
