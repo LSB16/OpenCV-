@@ -132,10 +132,6 @@ cv2.GC_INIT_WITH_MASK 인자는 사용자가 설정한 mask를 기반으로 그�
 
 ![grabCut2](./winimage/20220714_211555.png)
 
-selectROI 함수를 사용하여 그랩컷
-
 ![grabCut2_1](./winimage/20220714_211544.png) 
-
-사용자가 마우스로 객체, 배경 영역을 표시한 마스크로 그랩컷
 
 ---
